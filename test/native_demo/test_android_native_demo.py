@@ -1,26 +1,28 @@
-from test import base_test
+import unittest
+
 from appium import webdriver
+from appium.options.android import UiAutomator2Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.ui import WebDriverWait
-from appium.options.common import AppiumOptions
+
+from test import base_test
 
 
 class AndroidDemoTest(base_test.BaseTest):
-
     testName = 'Android Native Demo'
     driver = None
-    options = AppiumOptions()
 
     def setUp(self):
-        super().setUp()
-        self.options.set_capability('testName', self.testName)
-        self.options.set_capability('appPackage', 'com.experitest.ExperiBank')
-        self.options.set_capability('appActivity', '.LoginActivity')
-        self.options.set_capability('platformName', 'android')
-        self.options.set_capability('deviceQuery', "@os='android'")
-        self.options.set_capability('appiumVersion', '1.22.3')
-        self.driver = webdriver.Remote(self.getUrl(), options=self.options)
+        options = UiAutomator2Options()
+        options.app = 'cloud:com.experitest.ExperiBank/.LoginActivity'
+        options.appPackage = 'com.experitest.ExperiBank'
+        options.appActivity = '.LoginActivity'
+        options.set_capability('digitalai:accessKey', self.getAccessKey())
+        options.set_capability('digitalai:testName', self.testName)
+        options.set_capability('digitalai:deviceQuery', "@os='android'")
+        options.set_capability('digitalai:appiumVersion', '2.18.0')
+        self.driver = webdriver.Remote(self.getUrl(), options=options)
 
     def testAndroidNativeDemo(self):
         self.driver.find_element(By.ID, 'com.experitest.ExperiBank:id/usernameTextField').send_keys('company')
@@ -39,7 +41,8 @@ class AndroidDemoTest(base_test.BaseTest):
         self.driver.find_element(By.ID, 'android:id/button1').click()
 
     def tearDown(self):
-        print ('Report URL: ' + self.driver.capabilities['reportUrl'])
+        report_url = self.driver.capabilities.get('reportUrl', 'N/A')
+        print(f'Report URL: {report_url}')
         self.driver.quit()
 
 

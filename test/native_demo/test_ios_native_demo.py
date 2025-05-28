@@ -1,24 +1,26 @@
-from test import base_test
+import unittest
+
 from appium import webdriver
+from appium.options.ios import XCUITestOptions
 from selenium.webdriver.common.by import By
-from appium.options.common import AppiumOptions
+
+from test import base_test
 
 
 class IosDemoTest(base_test.BaseTest):
-
     testName = 'iOS Native Demo'
     driver = None
-    options = AppiumOptions()
 
     def setUp(self):
         super().setUp()
-        self.options.set_capability('testName', self.testName)
-        self.options.set_capability('app', 'cloud:com.experitest.ExperiBank')
-        self.options.set_capability('bundleId', 'com.experitest.ExperiBank')
-        self.options.set_capability('platformName', 'ios')
-        self.options.set_capability('deviceQuery', "@os='ios'")
-        self.options.set_capability('appiumVersion', "1.22.3")
-        self.driver = webdriver.Remote(self.getUrl(), options=self.options)
+        options = XCUITestOptions()
+        options.app = 'cloud:com.experitest.ExperiBank'
+        options.bundleId = 'com.experitest.ExperiBank'
+        options.set_capability('digitalai:accessKey', self.getAccessKey())
+        options.set_capability('digitalai:testName', self.testName)
+        options.set_capability('digitalai:deviceQuery', "@os='ios'")
+        options.set_capability('digitalai:appiumVersion', "2.18.0")
+        self.driver = webdriver.Remote(self.getUrl(), options=options)
 
     def testIosNativeDemo(self):
         self.driver.find_element(By.XPATH, "//*[@name='usernameTextField']").send_keys('company')
@@ -34,7 +36,8 @@ class IosDemoTest(base_test.BaseTest):
         self.driver.find_element(By.XPATH, "//*[@name='Yes']").click()
 
     def tearDown(self):
-        print ('Report URL: ' + self.driver.capabilities['reportUrl'])
+        report_url = self.driver.capabilities.get('reportUrl', 'N/A')
+        print(f'Report URL: {report_url}')
         self.driver.quit()
 
 
